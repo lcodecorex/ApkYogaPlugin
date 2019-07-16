@@ -1,0 +1,69 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'ApkYogaPlugin'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.oscar.apkyogaexample"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+ApkYoga {
+    enable true // 是否开启ApkYoga功能
+    enableOnDebug true // 是否在调试时开启
+    webpConvertConfig {
+        enable true // 是否允许png转为webp
+        type "lossy" // "lossy"转为webp采用有损转换模式，"lossless"转为webp采用无损模式
+        supportAlpha true // //是否支持带有透明度的webp，default false,带有透明图的图片会进行压缩
+        quality 75 // 质量[0,100]
+        whiteList = [
+                'iphone_7.png'
+        ]
+    }
+    imageCompressConfig { // webp转换后，剩下的jpeg和png
+        enable true // 是否允许压缩图片
+        type "lossy"
+        jpegQuality 84 // [84,100]
+        pngQuality 80 // [0,100]
+        whiteList = []
+    }
+    removeResourceConfig {
+        enable true
+        removeDuplicate true // 移除重复资源
+        blackList = [] // 删除不想要的资源
+    }
+    webCompressConfig {
+        enable true
+        html true
+        js true // 压缩js
+        css true
+    }
+    removeApkResourceConfig {
+        enable true
+        whiteList = []
+        blackList = []
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.core:core-ktx:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+}

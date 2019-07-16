@@ -1,8 +1,11 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 buildscript {
     ext.kotlin_version = '1.3.31'
     ext.gradle_version = '3.2.1'
     ext.anko_version = '0.8.2'
     repositories {
+        maven { url uri('../ApkYogaPlugin/ApkYogaPlugin/build/libs/') }
         google()
         jcenter()
         
@@ -10,6 +13,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.oscar:ApkYogaPlugin:0.0.1'
     }
 }
 
