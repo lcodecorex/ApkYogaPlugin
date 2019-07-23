@@ -1,1 +1,1 @@
-include ':app', ':ApkYogaPlugin'
+include ':app', ':ApkYogaPlugin', ':sdkoverlay'

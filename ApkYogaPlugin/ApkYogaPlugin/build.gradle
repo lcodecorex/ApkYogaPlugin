@@ -8,4 +8,5 @@ dependencies {
     compile "com.android.tools.build:gradle:$gradle_version"
     compile "org.apache.commons:commons-imaging:1.0-alpha1"
     compile "org.javassist:javassist:3.25.0-GA"
+    compile "org.ow2.asm:asm:7.1"
 }

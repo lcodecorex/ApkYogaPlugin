@@ -2,6 +2,13 @@ package com.oscar.apkyogaplugin.webp
 
 import com.android.SdkConstants
 import com.android.build.gradle.internal.api.BaseVariantImpl
+import com.android.build.gradle.internal.res.LinkApplicationAndroidResourcesTask
+import com.android.build.gradle.internal.scope.VariantScope
+import com.android.build.gradle.internal.workeractions.WorkerActionServiceRegistry
+import com.android.builder.internal.aapt.v2.Aapt2DaemonManager
+import com.android.builder.internal.aapt.v2.Aapt2DaemonTimeouts
+import com.android.sdklib.BuildToolInfo
+import com.android.utils.ILogger
 import com.oscar.apkyogaplugin.YogaExtension.Companion.COMPRESS_TYPE_LOSSY
 import com.oscar.apkyogaplugin.utils.*
 import org.apache.commons.imaging.Imaging
@@ -9,9 +16,12 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 
 open class WebpConvertTask : DefaultTask() {
 
@@ -26,6 +36,74 @@ open class WebpConvertTask : DefaultTask() {
 
     @TaskAction
     open fun webpConvert() {
+//        val variantName = variant.name.capitalize()
+//        val processResTask = info.project.tasks.getByName("process${variantName}Resources")
+//        processResTask as LinkApplicationAndroidResourcesTask
+//        val field = LinkApplicationAndroidResourcesTask::class.java.getDeclaredField("variantScope")
+//        field.isAccessible = true
+//        val scope = field.get(processResTask) as VariantScope
+//
+//        val aapt2FromMaven = processResTask.getAapt2FromMaven()
+//
+//        val getBuildToolsMethod = processResTask::class.java.getMethod("getBuildTools")
+//        getBuildToolsMethod.isAccessible = true
+//        val buildTools = getBuildToolsMethod.invoke(processResTask) as BuildToolInfo?
+//
+//        val getILoggerMethod = processResTask::class.java.getMethod("getILogger")
+//        getILoggerMethod.isAccessible = true
+//        val iLogger = getILoggerMethod.invoke(processResTask) as ILogger
+//
+//        val aaptExecutablePath: Path
+//        when {
+//            aapt2FromMaven != null -> {
+//                val dir = aapt2FromMaven.singleFile
+//                aaptExecutablePath = dir.toPath().resolve(SdkConstants.FN_AAPT2)
+//            }
+//            buildTools != null -> {
+//                aaptExecutablePath = Paths.get(buildTools.getPath(BuildToolInfo.PathId.AAPT2))
+//            }
+//            else -> throw IllegalArgumentException(
+//                "Must supply one of aapt2 from maven, build tool info or custom location."
+//            )
+//        }
+//
+//        val aaptMmClazz =
+//            Class.forName("com.android.build.gradle.internal.res.namespaced.Aapt2DaemonManagerMaintainer")
+//        val aaptMmCons = aaptMmClazz.getConstructor()
+//        aaptMmCons.isAccessible = true
+//
+//        val rsClazz = Class.forName("com.android.build.gradle.internal.res.namespaced.RegisteredAaptService")
+//        val rsCons = rsClazz.getDeclaredConstructor(Aapt2DaemonManager::class.java)
+//        rsCons.isAccessible = true
+//
+//        val servicesField = WorkerActionServiceRegistry::class.java.getDeclaredField("services")
+//        servicesField.isAccessible = true
+//        val services =
+//            servicesField.get(WorkerActionServiceRegistry.INSTANCE) as MutableMap<WorkerActionServiceRegistry.ServiceKey<*>, WorkerActionServiceRegistry.RegisteredService<*>>
+//        // 使用反射替换掉Aapt2DaemonManager,hook操作在Aapt2DaemonImpl中进行
+//        for ((serviceKey, _) in services) {
+////                    val clazz = Class.forName("com.android.builder.internal.aapt.v2.Aapt2DaemonManager")
+//            if (serviceKey.type == Aapt2DaemonManager::class.java) {
+//                val manager = Aapt2DaemonManager(
+//                    logger = iLogger,
+//                    daemonFactory = { displayId ->
+//                        Aapt2ExtDaemonImpl(
+//                            displayId = "#$displayId",
+//                            aaptExecutable = aaptExecutablePath,
+//                            daemonTimeouts = Aapt2DaemonTimeouts(),
+//                            logger = iLogger
+//                        )
+//                    },
+//                    expiryTime = TimeUnit.MINUTES.toSeconds(3),
+//                    expiryTimeUnit = TimeUnit.SECONDS,
+//                    listener = aaptMmCons.newInstance() as Aapt2DaemonManager.Listener
+//                )
+//
+//                services[serviceKey] =
+//                    rsCons.newInstance(manager) as WorkerActionServiceRegistry.RegisteredService<*>
+//            }
+//        }
+
         val resFolder = variant.mergeResources.outputDir.absolutePath ?: return
 
 //        val resList =
