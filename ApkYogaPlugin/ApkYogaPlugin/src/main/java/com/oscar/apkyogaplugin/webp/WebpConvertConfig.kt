@@ -40,6 +40,7 @@ import javassist.compiler.MemberResolver.getModifiers
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import java.lang.reflect.Array.setInt
+import java.util.concurrent.Executor
 
 
 class WebpConvertConfig : Plugin<Project> {
@@ -136,7 +137,7 @@ class WebpConvertConfig : Plugin<Project> {
 
             // insert webpConvertResources before processResources
             if (aapt2Enabled) {
-                // TODO 代理 WorkerActionServiceRegistry.INSTANCE
+/*                // TODO 代理 WorkerActionServiceRegistry.INSTANCE
                 processResTask as LinkApplicationAndroidResourcesTask
                 val aapt2FromMaven = processResTask.getAapt2FromMaven()
 
@@ -247,6 +248,8 @@ class WebpConvertConfig : Plugin<Project> {
                     }
                 }
 
+                WorkerActionServiceRegistry.INSTANCE.shutdownAllRegisteredServices(Executor {  })
+*/
                 val dependencies = processResTask.taskDependencies.getDependencies(processResTask)
                 task.dependsOn(dependencies)
                 processResTask.dependsOn(task)

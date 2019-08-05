@@ -1,14 +1,20 @@
 package com.oscar.apkyogaplugin.webp
 
+import com.android.SdkConstants
 import com.android.builder.internal.aapt.AaptPackageConfig
 import com.android.builder.internal.aapt.v2.*
 import com.android.ide.common.resources.CompileResourceRequest
 import com.android.utils.GrabProcessOutput
 import com.android.utils.ILogger
 import com.google.common.util.concurrent.SettableFuture
+import com.oscar.apkyogaplugin.utils.ProjectInfo
+import com.oscar.apkyogaplugin.utils.isWebpConvertableImage
 import com.oscar.apkyogaplugin.utils.log
+import org.apache.commons.io.FileUtils
+import java.io.File
 import java.io.IOException
 import java.io.Writer
+import java.lang.reflect.Modifier
 import java.nio.file.Path
 import java.util.Locale
 import java.util.concurrent.TimeoutException
@@ -24,7 +30,8 @@ class Aapt2ExtDaemonImpl(
     private val aaptCommand: List<String>,
     versionString: String,
     private val daemonTimeouts: Aapt2DaemonTimeouts,
-    logger: ILogger
+    logger: ILogger,
+    val info: ProjectInfo
 ) :
     Aapt2Daemon(
         displayName = "AAPT2 $versionString Daemon $displayId",
@@ -35,7 +42,8 @@ class Aapt2ExtDaemonImpl(
         displayId: String,
         aaptExecutable: Path,
         daemonTimeouts: Aapt2DaemonTimeouts,
-        logger: ILogger
+        logger: ILogger,
+        info: ProjectInfo
     ) :
             this(
                 displayId = displayId,
@@ -46,7 +54,8 @@ class Aapt2ExtDaemonImpl(
                 ),
                 versionString = aaptExecutable.parent.fileName.toString(),
                 daemonTimeouts = daemonTimeouts,
-                logger = logger
+                logger = logger,
+                info = info
             )
 
     private val noOutputExpected = NoOutputExpected(displayName, logger)
@@ -122,10 +131,42 @@ class Aapt2ExtDaemonImpl(
         }
     }
 
+    private var allSavedSize = 0L
+
     @Throws(TimeoutException::class, Aapt2InternalException::class, Aapt2Exception::class)
     override fun doCompile(request: CompileResourceRequest, logger: ILogger) {
         logger.info("aapt2 is hooked here, now replace CompileResourceRequest")
-        // TODO 资源替换
+        if (info.extension.enable && (info.extension.webpConvertConfig.enable || info.extension.imageCompressConfig.enable)) {
+            // 反射资源替换
+            val file = request.inputFile
+            if (file.isFile && isWebpConvertableImage(file, info.extension.webpConvertConfig.convertGif)) {
+                // copy file
+                val bakDir = File(info.project.buildDir, "tmp/yoga/${file.parentFile.name}")
+                if (!bakDir.exists()) {
+                    bakDir.mkdirs()
+                }
+
+                val destFile = File(bakDir, file.name)
+                FileUtils.copyFile(file, destFile)
+
+                val savedSize = WebpUtil.executeConvert(destFile, info)
+                allSavedSize += savedSize
+                log(" >> image converted current all saved size= $allSavedSize Byte")
+                if (savedSize > 0) {
+                    val fileName = destFile.name.substring(0, destFile.name.lastIndexOf(".")) + SdkConstants.DOT_WEBP
+                    val webpFile = File(destFile.parentFile.absolutePath, fileName)
+
+                    val inputFileField = CompileResourceRequest::class.java.getDeclaredField("inputFile")
+                    inputFileField.isAccessible = true
+                    val modifiers = inputFileField.javaClass.getDeclaredField("modifiers")
+                    modifiers.isAccessible = true
+                    modifiers.setInt(inputFileField, inputFileField.modifiers and Modifier.FINAL.inv())
+                    inputFileField.set(request, webpFile)
+                    modifiers.setInt(inputFileField, inputFileField.modifiers and Modifier.FINAL.inv())
+                }
+            }
+        }
+
         val waitForTask = WaitForTaskCompletion(displayName, logger)
         try {
             processOutput.delegate = waitForTask

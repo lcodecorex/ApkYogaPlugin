@@ -1,0 +1,48 @@
+package com.oscar.apkyogaplugin
+
+import com.android.build.gradle.internal.workeractions.WorkerActionServiceRegistry
+import com.android.builder.internal.aapt.v2.Aapt2DaemonManager
+import com.android.builder.internal.aapt.v2.Aapt2DaemonTimeouts
+import com.android.utils.ILogger
+import com.oscar.apkyogaplugin.webp.Aapt2ExtDaemonImpl
+import java.nio.file.Path
+import java.util.concurrent.TimeUnit
+
+open class WorkerActionServiceRegistryProxy(
+    private val iLogger: ILogger,
+    private val aaptExecutablePath: Path
+) : WorkerActionServiceRegistry() {
+
+    override fun <T : Any?> registerService(key: ServiceKey<T>, serviceFactory: () -> RegisteredService<T>) {
+        if (key.type == Aapt2DaemonManager::class.java) {
+            val aaptMmClazz =
+                Class.forName("com.android.build.gradle.internal.res.namespaced.Aapt2DaemonManagerMaintainer")
+            val aaptMmCons = aaptMmClazz.getConstructor()
+            aaptMmCons.isAccessible = true
+
+            val manager = Aapt2DaemonManager(
+                logger = iLogger,
+                daemonFactory = { displayId ->
+                    Aapt2ExtDaemonImpl(
+                        displayId = "#$displayId",
+                        aaptExecutable = aaptExecutablePath,
+                        daemonTimeouts = Aapt2DaemonTimeouts(),
+                        logger = iLogger
+                    )
+                },
+                expiryTime = TimeUnit.MINUTES.toSeconds(3),
+                expiryTimeUnit = TimeUnit.SECONDS,
+                listener = aaptMmCons.newInstance() as Aapt2DaemonManager.Listener
+            )
+
+            val rsClazz = Class.forName("com.android.build.gradle.internal.res.namespaced.RegisteredAaptService")
+            val rsCons = rsClazz.getDeclaredConstructor(Aapt2DaemonManager::class.java)
+            rsCons.isAccessible = true
+
+            val service = rsCons.newInstance(manager) as RegisteredService<*>
+            services[key] = service
+        } else {
+            super.registerService(key, serviceFactory)
+        }
+    }
+}

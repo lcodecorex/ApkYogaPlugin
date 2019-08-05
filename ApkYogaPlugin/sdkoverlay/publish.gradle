@@ -1,41 +1,28 @@
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-def DEBUG = true
+apply plugin: 'com.novoda.bintray-release'
+
 def VERSION = '0.0.1'
 def GROUP = 'com.oscar'
-def ARTIFACT = 'sdkoverlay'
+def ARTIFACT = 'abg_sdkoverlay'
 
-Properties properties = new Properties()
-if (project.rootProject.file('local.properties').exists()) {
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+publish {
+    userOrg = 'lcodecorex'
+    groupId = GROUP
+    artifactId = ARTIFACT
+    publishVersion = VERSION
+    desc = 'Android build gradle sdk overlays'
+    website = 'https://github.com/lcodecorex/ApkYogaPlugin/tree/master/ApkYogaPlugin/sdkoverlay/'
 }
 
-static def isSnapshot(def version) {
-    return version.endsWith("SNAPSHOT")
-}
+def DEBUG = true
 
 uploadArchives {
     repositories {
         mavenDeployer {
             if (DEBUG) {
                 repository(url: uri("${buildDir}/libs"))
-            } else {
-                if (isSnapshot(VERSION)) {
-                    repository(url: uri(properties.getProperty('MAVEN_SNAPSHOT_REPO'))) {
-                        authentication(
-                                userName: properties.getProperty('MAVEN_USER_NAME'),
-                                password: properties.getProperty('MAVEN_PASSWORD')
-                        )
-                    }
-                } else {
-                    repository(url: uri(properties.getProperty('MAVEN_RELEASE_REPO'))) {
-                        authentication(
-                                userName: properties.getProperty('MAVEN_USER_NAME'),
-                                password: properties.getProperty('MAVEN_PASSWORD')
-                        )
-                    }
-                }
             }
             pom.groupId = GROUP
             pom.artifactId = ARTIFACT

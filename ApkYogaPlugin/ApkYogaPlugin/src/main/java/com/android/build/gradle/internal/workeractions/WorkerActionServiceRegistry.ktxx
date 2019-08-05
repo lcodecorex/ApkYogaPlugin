@@ -25,7 +25,7 @@ import java.util.concurrent.Executor
  *
  * See implementations of [ServiceKey] to find services.
  */
- open class WorkerActionServiceRegistry {
+open class WorkerActionServiceRegistry {
     companion object {
         @JvmField
         val INSTANCE = WorkerActionServiceRegistry()
@@ -40,14 +40,14 @@ import java.util.concurrent.Executor
         fun shutdown()
     }
 
-    private val services: MutableMap<ServiceKey<*>, RegisteredService<*>> = mutableMapOf()
+    val services: MutableMap<ServiceKey<*>, RegisteredService<*>> = mutableMapOf()
 
     /** Registers a service that can be retrieved by use of the service key */
     @Synchronized
     fun <T : Any> registerService(key: ServiceKey<T>, serviceFactory: () -> RegisteredService<T>) {
         println("ApkYogaPlugin: registerService")
         if (services[key] == null) {
-            services.put(key, serviceFactory.invoke())
+            services[key] = serviceFactory.invoke()
         }
     }
 

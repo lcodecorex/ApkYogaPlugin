@@ -24,7 +24,7 @@ android {
 }
 
 ApkYoga {
-    enable true // 是否开启ApkYoga功能
+    enable false // 是否开启ApkYoga功能
     enableOnDebug true // 是否在调试时开启
     webpConvertConfig {
         enable true // 是否允许png转为webp

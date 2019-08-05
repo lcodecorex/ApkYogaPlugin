@@ -5,11 +5,11 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.novoda:bintray-release:0.9.1'
     }
 }
 
