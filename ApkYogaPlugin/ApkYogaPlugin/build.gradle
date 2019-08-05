@@ -5,6 +5,7 @@ apply from: 'publish.gradle'
 dependencies {
     compile gradleApi()
     compile localGroovy()
+    compile "com.oscar:abg_sdkoverlay:0.0.1"
     compile "com.android.tools.build:gradle:$gradle_version"
     compile "org.apache.commons:commons-imaging:1.0-alpha1"
     compile "org.javassist:javassist:3.25.0-GA"

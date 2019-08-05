@@ -6,13 +6,11 @@ buildscript {
     ext.anko_version = '0.8.2'
     repositories {
         maven { url uri('../ApkYogaPlugin/ApkYogaPlugin/build/libs/') }
-        maven { url uri('../ApkYogaPlugin/sdkoverlay/build/libs/') }
         google()
         jcenter()
-        
     }
     dependencies {
-        classpath "com.oscar:sdkoverlay:0.0.1"
+        classpath "com.oscar:abg_sdkoverlay:0.0.1"
         classpath 'com.oscar:ApkYogaPlugin:0.0.1'
         classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
